@@ -4,26 +4,25 @@
 import requests
 import sys
 
-
-"""Module"""
+"""module"""
 
 if __name__ == '__main__':
-    employee_id = sys.argv[1]
+    employee_ID = sys.argv[1]
     user_url = "https://jsonplaceholder.typicode.com/users/{}" \
-        .format(employee_id)
+        .format(employee_ID)
     todos_url = "https://jsonplaceholder.typicode.com/users/{}/todos/" \
-        .format(employee_id)
-
+        .format(employee_ID)
+    
     user_info = requests.request('GET', user_url).json()
     todos_info = requests.request('GET', todos_url).json()
 
-    employee_name = user_info["name"]
-    task_completed = list(filter(lambda obj:
-                                 (obj["completed"] is True), todos_info))
-    number_of_done_tasks = len(task_completed)
-    total_number_of_tasks = len(todos_info)
+    EMPLOYEE_NAME = user_info["name"]
+    TASK_COMPLETED = list(filter(lambda obj: (obj["completed"] is True), todos_info))
 
-    print("Employee {} is done with tasks({}/{}):".
-          format(employee_name, number_of_done_tasks, total_number_of_tasks))
+    NUMBER_OF_DONE_TASKS = len(TASK_COMPLETED)
+    TOTAL_NUMBER_OF_TASKS = len(todos_info)
 
-    [print("\t " + task["title"]) for task in task_completed]
+    print("Employee {} is done with tasks({}/{}):"
+          .format(EMPLOYEE_NAME,NUMBER_OF_DONE_TASKS, TOTAL_NUMBER_OF_TASKS))
+    [print("\t" + task["title"]) for task in TASK_COMPLETED]
+    
