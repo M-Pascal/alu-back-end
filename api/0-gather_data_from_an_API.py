@@ -1,28 +1,45 @@
 #!/usr/bin/python3
-"""Module"""
+"""Module to fetch and display employee tasks"""
 
 import requests
 import sys
 
-"""module"""
+def fetch_employee_data(employee_id):
+    user_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    todos_url = f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
+
+    user_response = requests.get(user_url)
+    todos_response = requests.get(todos_url)
+
+    if user_response.status_code != 200 or todos_response.status_code != 200:
+        print("Error: Failed to retrieve data from the API")
+        sys.exit(1)
+
+    user_info = user_response.json()
+    todos_info = todos_response.json()
+
+    return user_info, todos_info
+
+def print_employee_tasks(employee_name, completed_tasks, total_tasks):
+    print(f"Employee {employee_name} is done with tasks({len(completed_tasks)}/{total_tasks}):")
+    for task in completed_tasks:
+        print(f"\t{task['title']}")
 
 if __name__ == '__main__':
-    employee_ID = sys.argv[1]
-    user_url = "https://jsonplaceholder.typicode.com/users/{}" \
-        .format(employee_ID)
-    todos_url = "https://jsonplaceholder.typicode.com/users/{}/todos/" \
-        .format(employee_ID)
-    
-    user_info = requests.request('GET', user_url).json()
-    todos_info = requests.request('GET', todos_url).json()
+    # Check the number of command line arguments
+    if len(sys.argv) != 2:
+        print("Usage: python script_name.py <employee_id>")
+        sys.exit(1)
 
-    EMPLOYEE_NAME = user_info["name"]
-    TASK_COMPLETED = list(filter(lambda obj: (obj["completed"] is True), todos_info))
+    try:
+        employee_ID = int(sys.argv[1])
+    except ValueError:
+        print("Error: Invalid employee ID. Please provide a valid integer.")
+        sys.exit(1)
 
-    NUMBER_OF_DONE_TASKS = len(TASK_COMPLETED)
-    TOTAL_NUMBER_OF_TASKS = len(todos_info)
+    user_info, todos_info = fetch_employee_data(employee_ID)
+    employee_name = user_info.get("name", "Unknown Employee")
+    completed_tasks = [task for task in todos_info if task["completed"]]
+    total_tasks = len(todos_info)
 
-    print("Employee {} is done with tasks({}/{}):"
-          .format(EMPLOYEE_NAME,NUMBER_OF_DONE_TASKS, TOTAL_NUMBER_OF_TASKS))
-    [print("\t" + task["title"]) for task in TASK_COMPLETED]
-    
+    print_employee_tasks(employee_name, completed_tasks, total_tasks)
